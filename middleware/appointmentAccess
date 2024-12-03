@@ -1,0 +1,19 @@
+const {getConnection}=require('../startup/db');
+const {ObjectId}=require('mongodb');
+
+const appointmentAccess= async (req,res,next)=>
+{
+    const db=await getConnection();
+    const result = await db.collection('appointments').findOne({ _id: new ObjectId(req.params.id) });
+    if(!result)
+    {
+        return res.status(404).send("appointment with the given ID not found.");   
+    }
+    if(result.patientId!=req.user._id && result.doctorId!=req.user._id)    
+    {
+        return res.status(403).send('Acess denied');
+    }
+    next();
+}
+
+exports.appointmentAccess=appointmentAccess;
